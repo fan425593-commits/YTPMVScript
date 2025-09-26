@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net46</TargetFramework>
+    <AssemblyName>YTPMVScript</AssemblyName>
+    <RootNamespace>YTPMVScript</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Deterministic>true</Deterministic>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <!-- Try to auto-detect common Vegas ScriptPortal locations for Vegas 14/13/12.
+       If none of these exist on your machine, set VegasScriptPortalPath manually
+       (e.g. C:\Program Files (x86)\VEGAS\VEGAS Pro 14.0\Script Menu\ScriptPortal.Vegas.dll) -->
+  <PropertyGroup>
+    <VegasScriptPortalPath Condition="Exists('C:\Program Files\VEGAS\VEGAS Pro 14.0\Script Menu\ScriptPortal.Vegas.dll')">C:\Program Files\VEGAS\VEGAS Pro 14.0\Script Menu\ScriptPortal.Vegas.dll</VegasScriptPortalPath>
+    <VegasScriptPortalPath Condition=" '$(VegasScriptPortalPath)' == '' and Exists('C:\Program Files (x86)\VEGAS\VEGAS Pro 14.0\Script Menu\ScriptPortal.Vegas.dll') ">C:\Program Files (x86)\VEGAS\VEGAS Pro 14.0\Script Menu\ScriptPortal.Vegas.dll</VegasScriptPortalPath>
+    <VegasScriptPortalPath Condition=" '$(VegasScriptPortalPath)' == '' and Exists('C:\Program Files (x86)\VEGAS\VEGAS Pro 13.0\Script Menu\ScriptPortal.Vegas.dll') ">C:\Program Files (x86)\VEGAS\VEGAS Pro 13.0\Script Menu\ScriptPortal.Vegas.dll</VegasScriptPortalPath>
+    <VegasScriptPortalPath Condition=" '$(VegasScriptPortalPath)' == '' and Exists('C:\Program Files (x86)\VEGAS\VEGAS Pro 12.0\Script Menu\ScriptPortal.Vegas.dll') ">C:\Program Files (x86)\VEGAS\VEGAS Pro 12.0\Script Menu\ScriptPortal.Vegas.dll</VegasScriptPortalPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- If VegasScriptPortalPath is empty, MSBuild will still attempt to compile but you'll need to
+         update the path below or copy ScriptPortal.Vegas.dll into the project's lib folder. -->
+    <Reference Include="ScriptPortal.Vegas">
+      <HintPath>$(VegasScriptPortalPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <Optimize>false</Optimize>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>true</Optimize>
+    <DebugSymbols>false</DebugSymbols>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Optional: convenience target to validate ScriptPortal path and emit a friendly error -->
+  <Target Name="CheckVegasReference" BeforeTargets="Build">
+    <Error Text="ScriptPortal.Vegas.dll not found. Please set the VegasScriptPortalPath property in the .csproj to your ScriptPortal.Vegas.dll location (e.g. C:\Program Files (x86)\VEGAS\VEGAS Pro 14.0\Script Menu\ScriptPortal.Vegas.dll)."
+           Condition="'$(VegasScriptPortalPath)' == ''" />
+  </Target>
+</Project>
